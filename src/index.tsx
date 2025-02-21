@@ -21,8 +21,9 @@ import { MarkNode } from '@lexical/mark';
 import EditorShell from './EditorShell';
 import type { EditorShellProps, EditorShellRef } from './EditorShell';
 import editorNodes from './nodes';
+import registerWebComponents from './web-components';
 
-import './web-components/ImageViewer';
+registerWebComponents();
 
 export { getEditorHtml } from './ssr';
 

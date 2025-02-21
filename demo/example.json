@@ -29,7 +29,7 @@
       },
       {
         "children": [
-          { "detail": 0, "format": 0, "mode": "normal", "style": "", "text": "asdfasdfa", "type": "text", "version": 1 }
+          { "name": "AI Image Upscaling.json", "src": "https://quteam.com/ip", "type": "file", "version": 1 }
         ],
         "direction": "ltr",
         "format": "",

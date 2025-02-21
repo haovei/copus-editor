@@ -6,12 +6,12 @@
  *
  */
 
-import type {LexicalEditor, NodeKey} from 'lexical';
+import type { LexicalEditor, NodeKey } from 'lexical';
 
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 
-import {mergeRegister} from '@lexical/utils';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
@@ -24,10 +24,10 @@ import {
   KEY_ENTER_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import {$isFileNode} from './index';
-import styles from './style.module.less';
+import { $isFileNode } from './index';
+// import styles from './style.module.less';
 
 export default function FileComponent({
   src,
@@ -44,8 +44,7 @@ export default function FileComponent({
 }): JSX.Element {
   const divRef = useRef<null | HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [isSelected, setSelected, clearSelection] =
-    useLexicalNodeSelection(nodeKey);
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [editor] = useLexicalComposerContext();
   // const [selection, setSelection] = useState<BaseSelection | null>(null);
 
@@ -72,11 +71,7 @@ export default function FileComponent({
     (event: KeyboardEvent) => {
       const latestSelection = $getSelection();
       const buttonElem = buttonRef.current;
-      if (
-        isSelected &&
-        $isNodeSelection(latestSelection) &&
-        latestSelection.getNodes().length === 1
-      ) {
+      if (isSelected && $isNodeSelection(latestSelection) && latestSelection.getNodes().length === 1) {
         if (buttonElem !== null && buttonElem !== document.activeElement) {
           event.preventDefault();
           buttonElem.focus();
@@ -91,7 +86,7 @@ export default function FileComponent({
   useEffect(() => {
     let isMounted = true;
     const unregister = mergeRegister(
-      editor.registerUpdateListener(({editorState}) => {
+      editor.registerUpdateListener(({ editorState }) => {
         if (isMounted) {
           // setSelection(editorState.read(() => $getSelection()));
         }
@@ -133,82 +128,32 @@ export default function FileComponent({
         },
         COMMAND_PRIORITY_LOW,
       ),
-      editor.registerCommand(
-        KEY_DELETE_COMMAND,
-        onDelete,
-        COMMAND_PRIORITY_LOW,
-      ),
-      editor.registerCommand(
-        KEY_BACKSPACE_COMMAND,
-        onDelete,
-        COMMAND_PRIORITY_LOW,
-      ),
+      editor.registerCommand(KEY_DELETE_COMMAND, onDelete, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, onDelete, COMMAND_PRIORITY_LOW),
       editor.registerCommand(KEY_ENTER_COMMAND, onEnter, COMMAND_PRIORITY_LOW),
     );
     return () => {
       isMounted = false;
       unregister();
     };
-  }, [
-    clearSelection,
-    editor,
-    isSelected,
-    nodeKey,
-    onDelete,
-    onEnter,
-    setSelected,
-  ]);
-
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const downloadFile = useCallback((_url: string, _name: string) => {
-    const a = document.createElement('a');
-    a.href = _url;
-    a.target = '_blank';
-    a.download = _name;
-    // a.style.display = 'none';
-    // document.body.appendChild(a);
-    a.click();
-    // document.body.removeChild(a);
-  }, []);
-
-  const handleDownLoad = useCallback(() => {
-    if (isDownloading) {
-      return;
-    }
-    if (isAsync) {
-      setIsDownloading(true);
-      fetch(src)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const url = window.URL.createObjectURL(blob);
-          downloadFile(url, name);
-          window.URL.revokeObjectURL(url);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsDownloading(false);
-        });
-
-      return;
-    }
-    downloadFile(src, name);
-  }, [src, name, isAsync, isDownloading]);
+  }, [clearSelection, editor, isSelected, nodeKey, onDelete, onEnter, setSelected]);
 
   return (
-    <Suspense fallback={null}>
-      <div draggable={false} className="uploading-wrap editor-file">
-        <div
-          className={`${styles['file-block']} ${isSelected ? `focused` : ''}`}
-          ref={divRef}>
-          <div className="file-icon"></div>
-          <div className="file-name">{name}</div>
-          <div className="file-download" onClick={handleDownLoad}></div>
-        </div>
-        {uploading && <div className="uploading-text">Uploading...</div>}
-      </div>
-    </Suspense>
+    <copus-file-download src={src} name={name} uploading={uploading} is-async={isAsync} is-selected={isSelected} />
   );
+
+  // return (
+  //   <Suspense fallback={null}>
+  //     <div draggable={false} className="uploading-wrap editor-file">
+  //       <div
+  //         className={`${styles['file-block']} ${isSelected ? `focused` : ''}`}
+  //         ref={divRef}>
+  //         <div className="file-icon"></div>
+  //         <div className="file-name">{name}</div>
+  //         <div className="file-download" onClick={handleDownLoad}></div>
+  //       </div>
+  //       {uploading && <div className="uploading-text">Uploading...</div>}
+  //     </div>
+  //   </Suspense>
+  // );
 }

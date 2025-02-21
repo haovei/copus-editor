@@ -7,6 +7,7 @@
  */
 
 import type {
+  DOMExportOutput,
   EditorConfig,
   LexicalNode,
   NodeKey,
@@ -99,6 +100,15 @@ export class FileNode extends DecoratorNode<JSX.Element> {
       span.className = className;
     }
     return span;
+  }
+
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('copus-file-download');
+    element.setAttribute('src', this.__src);
+    element.setAttribute('name', this.__name);
+    element.setAttribute('uploading', this.__uploading.toString());
+    element.setAttribute('is-async', this.__isAsync.toString());
+    return {element};
   }
 
   updateDOM(): false {
